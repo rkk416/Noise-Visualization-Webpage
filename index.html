@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noise Pollution Awareness</title>
+    <style>
+        /* CSS Styles */
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #333;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            width: calc(100% - 40px);
+            min-height: 100vh;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #0066cc;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+
+        nav ul li a:hover {
+            color: #ffcc00;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        footer{
+            text-align: center;
+            padding: 20px;
+            background-color: #0066cc;
+            color: white;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        #noise-level {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .noise-detection-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        #feedback {
+            margin-top: 10px;
+            margin: auto;
+        }
+
+        /* New styles for additional sections */
+        .success-stories, .resources, .map, .discussion-forum {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+
+        .video, .podcast {
+            margin: 20px 0;
+        }
+        #home{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+        #sources{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+        #controls{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+        #impact{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+        #actions{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+        #faq{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+        #survey{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+        #detector{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+        #Referances{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+        #map{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+        #discussion{
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 8px;
+        }
+    </style>
+    <script>
+        // JavaScript Code
+
+        let animationId;
+        let audioContext;
+        let analyser;
+
+        function startNoiseDetection() {
+            const noiseLevelElement = document.getElementById('noise-level');
+
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        analyser = audioContext.createAnalyser();
+                        const microphone = audioContext.createMediaStreamSource(stream);
+                        microphone.connect(analyser);
+                        analyser.fftSize = 256;
+                        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                        function detectNoiseLevel() {
+                            analyser.getByteFrequencyData(dataArray);
+                            let sum = 0;
+                            for (let i = 0; i < dataArray.length; i++) {
+                                sum += dataArray[i];
+                            }
+                            const average = sum / dataArray.length;
+                            const noiseLevel = Math.round(average);
+                            noiseLevelElement.textContent = `Noise Level: ${noiseLevel} dB`;
+
+                            animationId = requestAnimationFrame(detectNoiseLevel);
+                        }
+
+                        detectNoiseLevel();
+                    })
+                    .catch(err => {
+                        noiseLevelElement.textContent = 'Error accessing microphone: ' + err.message;
+                    });
+            } else {
+                noiseLevelElement.textContent = 'Microphone access is not supported in this browser.';
+            }
+        }
+
+        function stopNoiseDetection() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+
+            document.getElementById('noise-level').textContent = 'Noise Level: Detection Stopped';
+        }
+
+        function submitFeedback(event) {
+            event.preventDefault();
+            alert("Thank you for your feedback!");
+            document.getElementById('feedback-form').reset();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Noise Pollution Awareness</h1>
+            <p>Understanding sources, effects, and solutions for noise pollution in our communities.</p>
+        </header>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#sources">Sources of Noise Pollution</a></li>
+                <li><a href="#controls">Controls for Noise Pollution</a></li>
+                <li><a href="#impact">Impact on Health</a></li>
+                <li><a href="#actions">Community Actions</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#survey">Survey Report</a></li>
+                <li><a href="#detector">Noise Detection Tool</a></li>
+                <li><a href="#map">Noise Pollution Map</a></li>
+                <li><a href="#discussion">Discussion Forum</a></li>
+            </ul>
+        </nav>
+        <main>
+            <section id="home">
+                <img src="Sources-of-Noise-Pollution.png" alt="Stop Noise Pollution" style="margin-left: 300px;">
+                <h2>Introduction</h2>
+                <p><strong>Understanding Noise Pollution:</strong> Noise pollution is the level of unwanted or harmful noise in the environment, which is generated by human activities. It's one of the most pervasive environmental threats that have plagued cities worldwide. Although often considered less dangerous than air or water pollution, noise pollution has profound effects on physical and mental health.</p>
+                <p><strong>Why It Matters:</strong> Noise pollution has been linked to several adverse health effects, including stress-related illness, hearing loss, sleep disorders, and heart diseases. It also can have big impacts on wildlife, altering communication mechanisms, breeding, and migration.</p>
+                <h3>Rapid Facts:</h3>
+                <ul>
+                    <li>According to the World Health Organization, noise above 65 decibels (dB) is dangerous for humans.</li>
+                    <li>Noise pollution may cause chronic stress and high blood pressure through long-term exposure.</li>
+                    <li>Exposure to noise has been documented to increase the risk of heart disease by 8-10% with every 10 dB rise in average sound levels.</li>
+                </ul>
+                <h3>Our Mission:</h3>
+                <p>This website is created with an aim to raise public awareness about the dangers of noise pollution and the source of excessive noise along with practical steps to reduce such polluting effects in neighborhoods. Together, we can bring back healthier, quieter communities.</p>
+            </section>
+            <section id="sources">
+                <h2>Extended Sources of Noise Pollution</h2>
+                <ol>
+                    <li><strong>Traffic Noise:</strong> Road traffic is the most common source of noise pollution in cities and suburbs. Levels can reach up to 90 dB in close spaces.</li>
+                    <li><strong>Industrial and Construction Noise:</strong> Construction sites and factories often generate noise levels as loud as 85-90 dB.</li>
+                    <li><strong>Neighbourhood Noise:</strong> Domestic noise from loud music, barking dogs, and shouting neighbors contributes significantly.</li>
+                    <li><strong>Public Transport Hubs:</strong> Airports, rail stations, or bus depots can generate noise levels up to 140 dB.</li>
+                    <li><strong>Recreational Noise:</strong> Events like concerts and sports contribute to unpredictable noise levels.</li>
+                </ol>
+            </section>
+            <section id="controls">
+                <h2>Controls for Maximum Workable Noise Pollution</h2>
+                <ul>
+                    <li><strong>Urban Planning and Design:</strong> Implement zoning laws and green buffers.</li>
+                    <li><strong>Traffic Management:</strong> Use noise-reducing asphalt and promote electric vehicles.</li>
+                    <li><strong>Construction Regulations and Soundproofing:</strong> Use soundproofing materials in buildings.</li>
+                    <li><strong>Noise Ordinances and Curfews:</strong> Establish curfews for construction and events.</li>
+                    <li><strong>Zoning and Urban Planning:</strong> Implement zoning regulations that separate residential areas from noisy industrial zones.</li>
+                    <li><strong>Noise Barriers:</strong> Construct noise barriers, such as walls or green belts, along highways and railways to reduce the sound reaching nearby homes and businesses.</li>
+                    <li><strong>Soundproofing Buildings:</strong> Encourage or mandate the use of soundproofing materials in construction.</li>
+                    <li><strong>Traffic Management:</strong> Limit the use of heavy vehicles in residential areas.</li>
+                    <li><strong>Public Awareness Campaigns:</strong> Educate the public about the sources and effects of noise pollution.</li>
+                </ul>
+            </section>
+            <section id="impact">
+                <h2>In-depth Review: Noise Pollution Impact on Health</h2>
+                <p><strong>Psychological Impact:</strong> Continuous exposure may lead to increased levels of stress hormones, anxiety, depression, or cognitive decline.</p>
+                <p><strong>Sleep Disturbance:</strong> Noise is a leading cause of sleep disorders, resulting in fatigue and cognitive impairment.</p>
+                <p><strong>Cardiovascular Problems:</strong> High noise levels can increase heart rate and blood pressure, raising the risk of heart attacks and strokes.</p>
+                <p><strong>Loss of Hearing:</strong> Exposure to noise over 85 dB can cause permanent hearing damage.</p>
+            </section>
+            <section id="actions">
+                <h2>Community and Individual Actions to Minimize Noise Pollution</h2>
+                <ul>
+                    <li><strong>Noise Abatement in Your Home:</strong> Use sound-absorbing furnishings and reduce appliance noise.</li>
+                    <li><strong>Be an Activist for Noise Regulations:</strong> Advocate for stricter local noise policies.</li>
+                    <li><strong>Environmental Friendly Transport:</strong> Promote green transportation and community greening projects.</li>
+                </ul>
+            </section>
+            <section id="faq">
+                <h2>FAQ Section</h2>
+                <p><strong>Q: How can I determine whether the noise levels are injurious?</strong><br>A: Noise levels exceeding 65 dB can disrupt activities like conversation and sleep. Prolonged exposure to noise above 85 dB may harm your hearing. Use tools like our noise detector to check your environment.</p>
+            </section>
+            <section id="survey">
+                <h2>Survey Report: Sources of Noise Pollution and Community Responses</h2>
+                <h3>Survey Overview</h3>
+                <p>To understand the sources of noise pollution in our neighborhood and the community's awareness of workable controls, a survey was conducted among local residents.</p>
+                <h3>Key Survey Findings</h3>
+                <ul>
+                    <li><strong>Major Sources of Noise Pollution Identified:</strong>
+                        <ul>
+                            <li><strong>Traffic Noise (67% of responses):</strong> The majority of respondents cited traffic as the main source of noise.</li>
+                            <li><strong>Construction Activity (55% of responses):</strong> Ongoing construction and road maintenance were also significant contributors.</li>
+                            <li><strong>Loudspeakers and Public Events (40% of responses):</strong> Respondents highlighted noise from public gatherings.</li>
+                            <li><strong>Domestic and Neighborhood Noise (35% of responses):</strong> Other sources included loud music and barking dogs.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Impact of Noise Pollution on Health:</strong>
+                        <ul>
+                            <li><strong>Sleep Disturbance (72% of responses):</strong> Many residents reported difficulty sleeping.</li>
+                            <li><strong>Stress and Anxiety (60% of responses):</strong> A significant number associated noise with increased stress.</li>
+                            <li><strong>Hearing Issues (15% of responses):</strong> Concerns about hearing loss were expressed.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Awareness and Attitude Towards Noise Control Measures:</strong>
+                        <ul>
+                            <li><strong>Noise Reduction Practices:</strong> 58% were aware, but only 35% actively took measures.</li>
+                            <li><strong>Support for Community Regulations:</strong> About 80% supported stricter noise control regulations.</li>
+                            <li><strong>Interest in Noise Reduction Awareness Campaigns:</strong> 65% expressed interest in community efforts.</li>
+                        </ul>
+                    </li>
+                </ul>
+                <h3>Analysis and Conclusion</h3>
+                <p>The survey indicates a high level of awareness about noise pollution, yet there’s a gap between awareness and action.</p>
+                <h3>Recommendations Based on Survey</h3>
+                <ul>
+                    <li><strong>Increase Community Awareness Campaigns:</strong> Organize events to inform residents.</li>
+                    <li><strong>Strengthen Noise Regulation Policies:</strong> Advocate for stricter enforcement of noise limits.</li>
+                    <li><strong>Engage Local Government for Infrastructure Planning:</strong> Request local authorities to plan traffic routes.</li>
+                </ul>
+            </section>
+            <section id="detector">
+                <h2>Noise Level Detection Tool</h2>
+                <p>Use the tool below to detect the noise level in your environment using your device's microphone.</p>
+                <div class="noise-detection-buttons">
+                    <button onclick="startNoiseDetection()">Start Noise Detection</button>
+                    <button onclick="stopNoiseDetection()">Stop Noise Detection</button>
+                </div>
+                <p id="noise-level">Noise Level: N/A</p>
+            </section>
+            <section id="map">
+                <h2>Noise Pollution Map</h2>
+                <p>Click <a href="https://www.noise-map.com/" target="_blank">here</a> to view the interactive noise pollution map.</p>
+            </section>
+            <section id="discussion">
+                <h2>Discussion Forum</h2>
+                <p>Join the conversation about noise pollution in our community. Share your experiences and suggestions!</p>
+                <a href="https://www.slideshare.net/slideshow/a-brief-discussion-on-noise-pollution/80304501" target="_blank">Visit the Forum</a>
+            </section>
+            <section class="success-stories">
+                <h2>Success Stories</h2>
+                <p>Learn how communities have successfully reduced noise pollution.</p>
+                <ul>
+                    <li><strong>New York City’s Quiet Streets Initiative:</strong> New York City has implemented a “Quiet Streets” initiative to reduce noise pollution in residential areas. By creating car-free zones, the city has improved the quality of life for residents, reduced traffic noise, and encouraged more outdoor activities. This program has seen a significant reduction in noise complaints in designated areas.</li>
+                    <li><strong>The London Noise Map:</strong> London created a comprehensive noise map that identifies the most noise-polluted areas. This project led to targeted interventions, such as noise barriers and improved traffic management. As a result, noise complaints decreased significantly in mapped areas, leading to better urban planning decisions.</li>
+                    <li><strong>California’s Highway Noise Barrier Projects:</strong>The California Department of Transportation constructed noise barriers along busy highways to protect nearby neighborhoods from excessive noise. These barriers have effectively reduced noise levels by up to 10 decibels, resulting in improved living conditions for residents.</li>
+                </ul>
+            </section>
+        </main>
+        <section id="feedback" style="background-color:rgb(253, 252, 249); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #333; text-align: center;">Visitor Feedback</h2>
+            <p style="text-align: center; font-size: 16px; color: #555;">We value your opinion! Please share your thoughts about the noise pollution survey and the noise level detection tool.</p>
+            
+            <form id="feedback-form" class="feedback-form" onsubmit="submitFeedback(event)" style="max-width: 600px; margin: auto;">
+                <label for="visitor-name" style="font-weight: bold;">Your Name:</label>
+                <input type="text" id="visitor-name" name="visitor-name" required style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px;">
+                
+                <label for="visitor-email" style="font-weight: bold;">Your Email:</label>
+                <input type="email" id="visitor-email" name="visitor-email" required style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px;">
+                
+                <label for="visitor-advice" style="font-weight: bold;">Your Feedback:</label>
+                <textarea id="visitor-advice" name="visitor-advice" rows="4" required style="width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                
+                <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Submit Feedback</button>
+            </form>
+        </section>
+        
+        <section id="Referances">
+            <h2>References</h2>
+            <ul>
+                <li>
+                    <a href="https://www.fidelityhearingcenter.com/blog/dealing-with-noise-pollution-in-your-neighborhood#:~:text=Noisy%20neighbors%2C%20appliances%20and%20construction,other%20loud%20sounds%20are%20prohibited">Strategies for Managing Noise Pollution in Your Neighborhood</a>
+                </li>
+                <li><a href="https://byjus.com/physics/noise-pollution-prevention/">Effective Prevention Strategies for Noise Pollution</a></li>
+                <li><a href="https://www.indialawoffices.com/legal-articles/how-to-stop-noisy-neighbors-in-india">Legal Solutions to Address Noisy Neighbors in India</a></li>
+            </ul>
+        </section> 
+        <footer id="footer">
+            <p>&copy; 2024 Noise Pollution Awareness. All rights reserved.</p>
+            <!-- <p>Contact us: <a href="mailto:info@noisepollutionawareness.org">info@noisepollutionawareness.org</a></p> -->
+            <p>Follow us on social media: 
+                <a href="https://www.linkedin.com/in/ram-krishna-383153321/" target="_blank">Linkedin</a> | 
+                <a href="https://www.linkedin.com/in/tanisha-shukla-1855a2262?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank">Linkedin</a> | 
+                <a href="https://facebook.com/noisepollutionawareness" target="_blank">Linkedin</a>
+                
+            </p>
+        </footer>
+   </div>
+</body>
+</html>   
